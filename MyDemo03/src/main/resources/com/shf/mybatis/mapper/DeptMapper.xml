@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shf.mybatis.mapper.DeptMapper">
+<!--    /**-->
+<!--    * 通过分步查询员工以及员工所对应的部门信息-->
+<!--    * 分步查询第二步：通过did查询员工所对应的部门-->
+<!--    */-->
+<!--    Dept getEmpAndDeptByStepTwo(@Param("did") String did);-->
+    <select id="getEmpAndDeptByStepTwo" resultType="dept">
+        select *
+        from t_dept where did=#{did};
+    </select>
+
+
+    <resultMap id="deptAndEmpResultMap" type="dept">
+        <id property="did" column="did"/>
+        <result property="deptName" column="dept_name"/>
+        <collection property="emps" ofType="emp">
+            <id property="eid" column="eid"/>
+            <result property="empName" column="empName"/>
+            <result property="age" column="age"/>
+            <result property="sex" column="sex"/>
+            <result property="email" column="email"/>
+        </collection>
+    </resultMap>
+<!--    /**-->
+<!--    * 获取部门以及部门中所有的员工信息-->
+<!--    */-->
+<!--    Dept getDeptAnd Emp(@Param("did") Integer did);-->
+    <select id="getDeptAndEmp" resultMap="deptAndEmpResultMap">
+        select *
+        from t_dept,t_emp where t_dept.did=t_emp.did and t_dept.did=#{did};
+    </select>
+
+
+    <resultMap id="deptAndEmpByStepResultMap" type="dept">
+        <id property="did" column="did"/>
+        <result property="deptName" column="dept_name"/>
+        <collection
+                fetchType="eager"
+                property="emps"
+                column="did"
+                select="com.shf.mybatis.mapper.EmpMapper.getDeptAndEmpByStepTwo"/>
+    </resultMap>
+<!--    /**-->
+<!--    * 获取部门以及部门中所有的员工信息（分步查询）-->
+<!--    * 分步查询第一步查询部门信息-->
+<!--    */-->
+<!--    Dept getDeptAndEmpByStepOne(@Param("did") Integer id);-->
+    <select id="getDeptAndEmpByStepOne" resultMap="deptAndEmpByStepResultMap">
+        select *
+        from t_dept where did=#{did};
+    </select>
+</mapper>
